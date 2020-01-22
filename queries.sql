@@ -83,3 +83,22 @@ FROM   	   (SELECT f.title, c.name, f.rental_duration, NTILE(4) OVER (PARTITION 
 	    JOIN category c
 	    ON c.category_id = fc.category_id
      	    WHERE name  IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')) AS T2
+
+
+
+**SET1 QUESTION3**
+
+/*QUERY 3.1: TO OBTAIN A COUNT OF EACH QUARTILE LEVEL PER FAMILY-FRIENDLY FILM CATEGORY (REQUIRED TABLE)*/
+WITH T1 AS 
+   (SELECT f.title, c.name, f.rental_duration, NTILE(4) OVER (PARTITION BY c.name ORDER BY rental_duration) AS standard_quartile
+	FROM film f
+	JOIN film_category fc
+	ON f.film_id = fc.film_id
+	JOIN category c
+	ON c.category_id = fc.category_id
+	WHERE name  IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music'))
+    
+SELECT name, standard_quartile, COUNT(*)
+FROM T1
+GROUP BY 1, 2
+ORDER BY 1, 2
