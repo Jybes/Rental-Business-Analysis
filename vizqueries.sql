@@ -47,3 +47,86 @@ JOIN (SELECT name, AVG (rental_duration) OVER() 	  AS family_movies
 ON T3.name = T4.name
 LIMIT 1
 
+
+
+/*VISUALIZATION QUERY 3: TO OBTAIN A CLEARER VIEW OF QUERY 3.1*/
+WITH T1 AS
+	(SELECT f.title, c.name, f.rental_duration, NTILE(4) OVER (PARTITION BY c.name ORDER BY rental_duration) AS standard_quartile
+	 FROM film f
+	 JOIN film_category fc
+	 ON f.film_id = fc.film_id
+	 JOIN category c
+	 ON c.category_id = fc.category_id),
+    
+T2 AS
+	(SELECT COUNT(*) AS animation, CASE WHEN standard_quartile = 1 THEN '1st Quartile'
+WHEN standard_quartile = 2 THEN '2nd Quartile'
+WHEN standard_quartile = 3 THEN '3rd Quartile'
+ELSE '4th Quartile' END AS standard_quartile 
+	 FROM T1
+	 WHERE name = 'Animation'
+	 GROUP BY 2
+	 ORDER BY 2),
+
+T3 AS
+	(SELECT COUNT(*) AS children, CASE WHEN standard_quartile = 1 THEN '1st Quartile'
+WHEN standard_quartile = 2 THEN '2nd Quartile'
+WHEN standard_quartile = 3 THEN '3rd Quartile'
+ELSE '4th Quartile' END AS standard_quartile 
+	 FROM T1
+	 WHERE name = 'Children'
+	 GROUP BY 2
+	 ORDER BY 2),
+    
+T4 AS
+	(SELECT COUNT(*) AS classics, CASE WHEN standard_quartile = 1 THEN '1st Quartile'
+WHEN standard_quartile = 2 THEN '2nd Quartile'
+WHEN standard_quartile = 3 THEN '3rd Quartile'
+ELSE '4th Quartile' END AS standard_quartile 
+	 FROM T1
+	 WHERE name = 'Classics'
+	 GROUP BY 2
+	 ORDER BY 2),
+    
+T5 AS
+	(SELECT COUNT(*) AS comedy, CASE WHEN standard_quartile = 1 THEN '1st Quartile'
+WHEN standard_quartile = 2 THEN '2nd Quartile'
+WHEN standard_quartile = 3 THEN '3rd Quartile'
+ELSE '4th Quartile' END AS standard_quartile 
+	 FROM T1
+	 WHERE name = 'Comedy'
+	 GROUP BY 2
+	 ORDER BY 2),
+    
+T6 AS
+	(SELECT COUNT(*) AS family, CASE WHEN standard_quartile = 1 THEN '1st Quartile'
+WHEN standard_quartile = 2 THEN '2nd Quartile'
+WHEN standard_quartile = 3 THEN '3rd Quartile'
+ELSE '4th Quartile' END AS standard_quartile 
+	 FROM T1
+	 WHERE name = 'Family'
+	 GROUP BY 2
+	 ORDER BY 2),
+    
+T7 AS
+	(SELECT COUNT(*) AS music, CASE WHEN standard_quartile = 1 THEN '1st Quartile'
+WHEN standard_quartile = 2 THEN '2nd Quartile'
+WHEN standard_quartile = 3 THEN '3rd Quartile'
+ELSE '4th Quartile' END AS standard_quartile 
+	 FROM T1
+	 WHERE name = 'Music'
+	 GROUP BY 2
+	 ORDER BY 2)
+
+SELECT T2.standard_quartile, T2.animation, T3.children, T4.classics, T5.comedy, T6.family, T7.music
+FROM T2
+JOIN T3
+ON T2.standard_quartile = T3.standard_quartile
+JOIN T4
+ON T3.standard_quartile = T4.standard_quartile
+JOIN T5
+ON T4.standard_quartile = T5.standard_quartile
+JOIN T6
+ON T5.standard_quartile = T6.standard_quartile
+JOIN T7
+ON T6.standard_quartile = T7.standard_quartile
