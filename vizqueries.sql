@@ -130,3 +130,19 @@ JOIN T6
 ON T5.standard_quartile = T6.standard_quartile
 JOIN T7
 ON T6.standard_quartile = T7.standard_quartile
+
+
+
+/*VISUALIZATION QUERY 4: TO SHOW THE TOP TEN PAYING CUSTOMERS AND THEIR TOTAL PAYMENT */
+WITH T1 AS (SELECT DATE_TRUNC('month', p.payment_date) AS paymonth, CONCAT(c.first_name, ' ', c.last_name) AS fullname, COUNT(*) AS pay_countpermon, SUM(p.amount) AS pay_amount
+FROM payment p
+JOIN customer c
+ON p.customer_id = c.customer_id
+GROUP BY 1, 2
+ORDER BY 2, 1)
+
+SELECT fullname, SUM(pay_amount) AS tot_sum
+FROM T1
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 10
