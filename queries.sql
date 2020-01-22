@@ -102,3 +102,28 @@ SELECT name, standard_quartile, COUNT(*)
 FROM T1
 GROUP BY 1, 2
 ORDER BY 1, 2
+
+
+
+**SET2 QUESTION2**
+
+/*QUERY 4.1: TO OBTAIN THE PAY MONTH, CUSTOMER'S FULL NAME, MONTHLY PAY COUNT, AND AMOUNT PAID*/
+WITH T1 AS (SELECT DATE_TRUNC('month', p.payment_date) AS paymonth, CONCAT(c.first_name, ' ', c.last_name) AS fullname, COUNT(*) AS pay_countpermon, SUM(p.amount) AS pay_amount
+FROM payment p
+JOIN customer c
+ON p.customer_id = c.customer_id
+GROUP BY 1, 2
+ORDER BY 2, 1),
+
+/*QUERY 4.2: TO OBTAIN THE TOP TEN PAYING CUSTOMERS*/
+T2 AS (SELECT fullname, SUM(pay_amount) AS tot_sum
+FROM T1
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 10)
+
+/*QUERY 4.3: TO SELECT FROM QUERY 1 ONLY THE TOP TEN PAYING CUSTOMERS*/
+SELECT T1.paymonth, T1.fullname, T1.pay_countpermon, T1.pay_amount
+FROM T1
+JOIN T2
+ON T1.fullname = T2.fullname
